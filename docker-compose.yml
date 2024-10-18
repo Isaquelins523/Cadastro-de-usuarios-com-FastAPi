@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  web:
+    build: .
+    container_name: fastapi_app
+    ports:
+      - "8000:8000"  # Mapeia a porta 8000 do host para o container
+    depends_on:
+      - db  # Garante que o banco de dados esteja rodando antes da aplicação
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db/postgres  # URL de conexão com o banco
+    volumes:
+      - .:/app  # Sincroniza o diretório local com o container
+    networks:
+      - app-network
+
+  db:
+    image: postgres:15  # Usando a versão 15 do PostgreSQL
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 232425
+      POSTGRES_DB: clients
+    ports:
+      - "5432:5432"  # Porta do PostgreSQL
+    networks:
+      - app-network
+    volumes:
+      - pgdata:/var/lib/postgresql/data  # Persistência dos dados do banco
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  pgdata:
